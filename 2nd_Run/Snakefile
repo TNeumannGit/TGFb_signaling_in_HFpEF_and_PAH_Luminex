@@ -1,0 +1,76 @@
+
+Root_path = "Your/Root/Path"
+
+rule all:
+	input:
+		Root_path + "Plots/Normalisation_Plots/Histogram_Normal_test.png",
+		Root_path + "Plots/Standard_curves/Expected_curves_Luminex.png"
+
+rule Raw_data_processing:
+	input:
+		Root_path + "Data/Raw_data/plate_layout_final.csv",
+		Root_path + "Data/Raw_data/13_plex_plaat 1.xls",
+		Root_path + "Data/Raw_data/13_plex_plaat 2.xls"
+
+	output:
+		Root_path + "Data/Processed_data/Processed_files/Plate_1_Processed.csv",
+		Root_path + "Data/Processed_data/Processed_files/Plate_2_Processed.csv",
+		Root_path + "Data/Processed_data/CV_files/CVs/Plate_1_CVs.csv",
+		Root_path + "Data/Processed_data/CV_files/CVs/Plate_2_CVs.csv",
+		Root_path + "Data/Processed_data/Standard_curve_files/Plate_1_Standard_curve.csv",
+		Root_path + "Data/Processed_data/Standard_curve_files/Plate_2_Standard_curve.csv",
+		Root_path + "Data/Processed_data/Standard_expected_files/Plate_1_Standard_expected.csv",
+		Root_path + "Data/Processed_data/Standard_expected_files/Plate_2_Standard_expected.csv"
+	script:
+		Root_path + "Scripts/1_Luminex_raw_data_processing.R"
+
+
+rule Plates_combination:
+	input:
+		Root_path + "Data/Processed_data/Processed_files/Plate_1_Processed.csv",
+		Root_path + "Data/Processed_data/Processed_files/Plate_2_Processed.csv",
+
+	output:
+		Root_path + "Data/Plates_combined/Plates_combined_unprocessed.csv"
+	script:
+		Root_path + "Scripts/2_Plate_combination.R"
+
+
+rule Standard_curves:
+	input:
+		Root_path + "Data/Processed_data/Standard_curve_files/Plate_1_Standard_curve.csv",
+		Root_path + "Data/Processed_data/Standard_curve_files/Plate_2_Standard_curve.csv",
+		Root_path + "Data/Processed_data/Standard_expected_files/Plate_1_Standard_expected.csv",
+		Root_path + "Data/Processed_data/Standard_expected_files/Plate_2_Standard_expected.csv"
+	output:
+		Root_path + "Plots/Standard_curves/Standard_curves_Luminex.png",
+		Root_path + "Plots/Standard_curves/Expected_curves_Luminex.png"
+	script:	
+		Root_path + "Scripts/3_Standard_curve_analysis.R"
+
+
+rule Data_cleaning:
+	input:
+		Root_path + "Data/Plates_combined/Plates_combined_unprocessed.csv"
+	output:
+		Root_path + "Plots/Bead_plot/Bead_count_plot.pdf",
+		Root_path + "Plots/Under_LLQ_Histograms/Under_LLQ_Target_Histogram.png",
+		Root_path + "Plots/Under_LLQ_Histograms/Under_Participant_ID_Histogram.png",
+		Root_path + "Plots/Under_LLQ_Histograms/Under_LLQ_Plate_Histogram.png",
+		Root_path + "Plots/Under_LLQ_Histograms/Under_LLQ_Groups_Histogram.png",
+		Root_path + "Data/Cleaned_data/Clean_data.csv",
+		Root_path + "Data/Cleaned_data/Log_Clean_data.csv",
+		Root_path + "Data/Cleaned_data/Concentration_table.csv",
+		Root_path + "Data/Cleaned_data/Log_Concentration_table.csv"
+	script:
+		Root_path + "Scripts/4_Data_cleaning.R"
+
+
+rule Normalisation_test:
+	input:
+		Root_path + "Data/Cleaned_data/Log_Concentration_table.csv"
+	output:
+		Root_path + "Plots/Normalisation_Plots/Histogram_Normal_test.png"
+	script:
+		Root_path + "Scripts/5_Normalisation_test.R"
+
